@@ -1,17 +1,10 @@
-FROM nginx:latest
-EXPOSE 8080
-WORKDIR /app
-USER root
+FROM ubuntu:latest
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY config.json ./
-COPY entrypoint.sh ./
-COPY index.html /usr/share/nginx/html
+RUN apt-get -q -y update && apt-get -y install nginx
 
-RUN apt-get update && apt-get install -y wget unzip iproute2 systemctl && \
-    wget -O temp.zip https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip && \
-    unzip temp.zip xray && \
-    rm -f temp.zip && \
-    chmod -v 755 xray entrypoint.sh
+COPY nginx.conf /etc/nginx/
 
-ENTRYPOINT [ "./entrypoint.sh" ]
+RUN rm -f /var/www/html/index.nginx-debian.html
+COPY index.html /var/www/html
+
+CMD ["nginx", "-g", "daemon off;"]
